@@ -7,11 +7,11 @@ GITHUB=https://github.com
 DATA=/data
 
 # Build parameters
-BUILD=cwt23
-KERNEL=6.6
-SF_VERSION=v5.13.1
+BUILD=cwt24
+KERNEL=6.12
+SF_VERSION=v5.14.0
 SF_TAG=JH7110_VF2_${KERNEL}_${SF_VERSION}
-U_BOOT_PKG_VER=2024.07-3
+U_BOOT_PKG_VER=2025.01-1
 U_BOOT_PKG_URL=${GITHUB}/cwt-vf2/u-boot-starfive-vf2/releases/download/${U_BOOT_PKG_VER}
 U_BOOT_PKG=u-boot-starfive-vf2-${U_BOOT_PKG_VER}-riscv64.pkg.tar.zst
 ROOTFS=https://riscv.mirror.pkgbuild.com/images/archriscv-2024-09-22.tar.zst
@@ -22,7 +22,7 @@ TARGET=${DATA}/${BUILD}
 PKGS=${DATA}/pkgs
 
 # Kernel
-KNL_REL=1
+KNL_REL=2
 KNL_NAME=linux-cwt-${KERNEL}-starfive-vf2
 KNL_URL=${GITHUB}/cwt-vf2/linux-cwt-starfive-vf2/releases/download/${BUILD}-${SF_VERSION:1}-${KNL_REL}
 KNL_SUFFIX=${BUILD:3}.${SF_VERSION:1}-${KNL_REL}-riscv64.pkg.tar.zst
@@ -37,9 +37,9 @@ GPU_PKG=img-gpu-vf2-${GPU_VER}-${GPU_REL}-riscv64.pkg.tar.zst
 
 # Mesa
 MESA_VER=22.1.7
-MESA_REL=4
-MESA_URL=${GITHUB}/cwt-vf2/mesa-pvr-vf2/releases/download/v${MESA_VER}-${MESA_REL}
-MESA_PKG=mesa-pvr-vf2-${MESA_VER}-${MESA_REL}-riscv64.pkg.tar.zst
+MESA_REL=1
+MESA_URL=${GITHUB}/cwt-vf2/mesa-pvr-ddk119/releases/download/${MESA_VER}-${MESA_REL}
+MESA_PKG=mesa-pvr-ddk119-${MESA_VER}-${MESA_REL}-riscv64.pkg.tar.zst
 
 # WiFi and Bluetooth Firmware
 BUILDROOT=${DATA}/buildroot
@@ -79,7 +79,7 @@ mkdir -p ${PKGS}
 # Set wget options
 WGET="wget --progress=bar -c -O"
 
-# Download U-Boot (built with Starfive's OpenSBI)
+# Download U-Boot
 ${WGET} ${DATA}/${U_BOOT_PKG} ${U_BOOT_PKG_URL}/${U_BOOT_PKG}
 
 # Install U-Boot on the builder box, the U-Boot images will be at /usr/share/u-boot-starfive-vf2/
@@ -166,9 +166,6 @@ sudo cp ${DATA}/pkgs/* ${TARGET}/root/pkgs
 
 # Also copy U-Boot package to target
 sudo cp ${DATA}/${U_BOOT_PKG} ${TARGET}/root/pkgs
-
-# Disable microcode hook
-sudo install -o root -g root -D -m 644 configs/no-microcode-hook.conf ${TARGET}/etc/mkinitcpio.conf.d/no-microcode-hook.conf
 
 # Update and install packages via arch-chroot
 sudo arch-chroot ${TARGET} pacman -Syu --noconfirm
